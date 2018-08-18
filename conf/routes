@@ -1,0 +1,11 @@
+GET        /media          controllers.MediaController.getMedia(mediaName: String)
+
+GET        /reddit         controllers.RedditController.getComboNews(quantity: Int=5)
+
+GET        /product        controllers.AmazonController.getSuitableProducts(name: String)
+
+GET        /top            controllers.NewsController.getTopNews
+GET        /world          controllers.NewsController.getWorldsNews
+GET        /uk             controllers.NewsController.getUkNews
+GET        /tech           controllers.NewsController.getTechNews
+GET        /news           controllers.NewsController.getComboNews(quantity: Int=10)
