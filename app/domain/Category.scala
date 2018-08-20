@@ -27,7 +27,7 @@ object Category {
   implicit object CategoryFormatter extends Format[Category] {
 
     override def writes(category: Category): JsValue = {
-      val productSeq = Seq("title" -> JsString(category.toString))
+      val productSeq = Seq("category" -> JsString(category.toString))
 
       JsObject(productSeq)
     }

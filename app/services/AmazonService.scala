@@ -4,8 +4,6 @@ import domain.AmazonProduct
 import net.ruippeixotog.scalascraper.browser.{Browser, JsoupBrowser}
 import net.ruippeixotog.scalascraper.model.ElementQuery
 
-import scala.collection.immutable
-
 class AmazonService {
   private val amountOfProductsToRetrieve = 9
   private val searchLink = "https://www.amazon.co.uk/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords="
@@ -16,7 +14,7 @@ class AmazonService {
   private val numberOfRatingsHtmlClass = "[href*=customerReviews]"
   private val primeHtmlClass = ".a-icon-prime"
 
-  def getSuitableProducts(productName: String, maxPrice: Double = Double.MaxValue): immutable.Seq[AmazonProduct] = {
+  def getSuitableProducts(productName: String, maxPrice: Double = Double.MaxValue): Seq[AmazonProduct] = {
     val productsFromAmazon = getProductsFromAmazon(productName)
     applyFilterOnProducts(productsFromAmazon, maxPrice)
   }
@@ -25,21 +23,21 @@ class AmazonService {
     val productSearchLink = searchLink + productName
     val retrievedHtmlProducts = JsoupBrowser().get(productSearchLink).body
 
-    val productObjects = for (index <- 0 to amountOfProductsToRetrieve
-                              if assertValidProduct(retrievedHtmlProducts.select("#result_" + index))) yield {
+    (0 to amountOfProductsToRetrieve)
+      .filter(index => assertValidProduct(retrievedHtmlProducts.select("#result_" + index)))
+      .map(item => {
 
-      val product = retrievedHtmlProducts.select("#result_" + index)
+        val product = retrievedHtmlProducts.select("#result_" + item)
 
-      createProductObject(
-        productName = product.select(productTitleHtmlClass).head.attr("title"),
-        link = product.select(productLinkHtmlClass).head.attr("href"),
-        price = product.select(productPriceHtmlClass).head.text,
-        rating = product.select(productRatingHtmlClass).head.text,
-        numberOfRatings = product.select(numberOfRatingsHtmlClass).head.text,
-        prime = product.select(primeHtmlClass).head.select("[aria-label]").nonEmpty)
-    }
+        createProductObject(
+          productName = product.select(productTitleHtmlClass).head.attr("title"),
+          link = product.select(productLinkHtmlClass).head.attr("href"),
+          price = product.select(productPriceHtmlClass).head.text,
+          rating = product.select(productRatingHtmlClass).head.text,
+          numberOfRatings = product.select(numberOfRatingsHtmlClass).head.text,
+          prime = product.select(primeHtmlClass).head.select("[aria-label]").nonEmpty)
 
-    productObjects.toList
+      }).toList
   }
 
   private def assertValidProduct(selectedProduct: ElementQuery[Browser#DocumentType#ElementType]): Boolean = {

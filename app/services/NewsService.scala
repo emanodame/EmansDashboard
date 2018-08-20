@@ -11,21 +11,13 @@ class NewsService {
   private val ukNewsUrl = "http://feeds.bbci.co.uk/news/uk/rss.xml"
   private val techNewsUrl = "http://feeds.bbci.co.uk/news/technology/rss.xml"
 
-  def getTopNews: Seq[News] = {
-    generateItems(topNewsUrl, TopNews)
-  }
+  def getTopNews: Seq[News] = generateItems(topNewsUrl, TopNews)
 
-  def getWorldNews: Seq[News] = {
-    generateItems(worldNewsUrl, WorldNews)
-  }
+  def getWorldNews: Seq[News] = generateItems(worldNewsUrl, WorldNews)
 
-  def getUKNews: Seq[News] = {
-    generateItems(ukNewsUrl, UKNews)
-  }
+  def getUKNews: Seq[News] = generateItems(ukNewsUrl, UKNews)
 
-  def getTechNews: Seq[News] = {
-    generateItems(techNewsUrl, TechNews)
-  }
+  def getTechNews: Seq[News] = generateItems(techNewsUrl, TechNews)
 
   def getComboNews(quantityOfNews: Integer): Seq[News] = {
     getTopNews.take(quantityOfNews) ++
@@ -34,7 +26,7 @@ class NewsService {
       getTechNews.take(quantityOfNews)
   }
 
-  def generateItems(url: String, category: Category): Seq[News] = {
+  private def generateItems(url: String, category: Category): Seq[News] = {
     val xmlItems = XML.load(url) \ "channel" \ "item"
     xmlItems.map(item => News(
       (item \ "title").head.text,

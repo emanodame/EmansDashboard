@@ -12,21 +12,13 @@ class RedditService {
   private val csCareerUrl = "https://www.reddit.com/r/hiphopheads/.rss"
   private val theRedPillUrl = "https://www.reddit.com/r/TheRedPill/.rss"
 
-  def getFrontPagePosts: Seq[Post] = {
-    generatePosts(frontPageUrl, Unknown)
-  }
+  def getFrontPagePosts: Seq[Post] = generatePosts(frontPageUrl, Unknown)
 
-  def getHHHPosts: Seq[Post] = {
-    generatePosts(hhhUrl, HHHPost)
-  }
+  def getHHHPosts: Seq[Post] = generatePosts(hhhUrl, HHHPost)
 
-  def getCsCareerPosts: Seq[Post] = {
-    generatePosts(csCareerUrl, CsCareerPost)
-  }
+  def getCsCareerPosts: Seq[Post] = generatePosts(csCareerUrl, CsCareerPost)
 
-  def getTheRedPillPosts: Seq[Post] = {
-    generatePosts(theRedPillUrl, TheRedPillPost)
-  }
+  def getTheRedPillPosts: Seq[Post] = generatePosts(theRedPillUrl, TheRedPillPost)
 
   def getComboNews(quantityOfNews: Integer): Seq[Post] = {
     getHHHPosts.take(quantityOfNews) ++
