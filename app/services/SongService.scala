@@ -42,13 +42,14 @@ class SongService {
 
     Song(
       id = songId.toString(),
+      name = (jsonSongObject \ "full_title").get.toString(),
       url = (jsonSongObject \ "url").get.toString(),
-      name = (jsonSongObject \ "title_with_featured").get.toString(),
       features = createList(jsonSongObject \ "featured_artists"),
       producers = createList(jsonSongObject \ "producer_artists"))
   }
 
-  private def createList(result: JsLookupResult): List[String] = {
-    result.as[JsArray].value.map(entry => (entry \ "name").get.toString()).toList
+  private def createList(result: JsLookupResult): List[Map[String, String]] = {
+    result.as[JsArray].value.map(entry =>
+      Map[String, String]((entry \ "name").get.toString() -> (entry \ "url").get.toString())).toList
   }
 }

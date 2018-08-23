@@ -7,5 +7,7 @@ object Application {
     val amazonService = new AmazonService
     val movieService = new MediaService
     val songService  = new SongService
+
+    songService.getSongInfo("The Hills")
   }
 }

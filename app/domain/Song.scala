@@ -5,8 +5,8 @@ import play.api.libs.json._
 final case class Song(id: String,
                       name: String,
                       url: String,
-                      features: List[String],
-                      producers: List[String]) {
+                      features: List[Map[String, String]],
+                      producers: List[Map[String, String]]) {
 }
 
 object EmptySongCreator {
