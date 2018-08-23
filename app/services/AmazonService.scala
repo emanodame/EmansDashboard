@@ -1,4 +1,4 @@
-package service
+package services
 
 import domain.AmazonProduct
 import net.ruippeixotog.scalascraper.browser.{Browser, JsoupBrowser}

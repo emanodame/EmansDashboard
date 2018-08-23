@@ -3,7 +3,7 @@ package controllers
 import javax.inject.Inject
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
-import service.RedditService
+import services.RedditService
 
 class RedditController @Inject()(cc: ControllerComponents, redditService: RedditService) extends AbstractController(cc) {
 

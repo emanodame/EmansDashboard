@@ -1,4 +1,4 @@
-package service
+package services
 
 import domain.Category._
 import domain.Post
@@ -9,7 +9,7 @@ import scala.xml.XML
 class RedditService {
   private val frontPageUrl = "https://www.reddit.com/.rss"
   private val hhhUrl = "https://www.reddit.com/r/hiphopheads/.rss"
-  private val csCareerUrl = "https://www.reddit.com/r/hiphopheads/.rss"
+  private val csCareerUrl = "https://www.reddit.com/r/cscareerquestions/.rss"
   private val theRedPillUrl = "https://www.reddit.com/r/TheRedPill/.rss"
 
   def getFrontPagePosts: Seq[Post] = generatePosts(frontPageUrl, Unknown)

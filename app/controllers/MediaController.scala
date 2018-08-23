@@ -10,5 +10,4 @@ class MediaController @Inject()(cc: ControllerComponents, mediaService: MediaSer
   def getMedia(mediaName: String) = Action {
     Ok(Json.prettyPrint(Json.toJson(mediaService.determineIfWatchable(mediaName))))
   }
-
 }

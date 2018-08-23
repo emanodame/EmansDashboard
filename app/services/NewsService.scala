@@ -1,4 +1,4 @@
-package service
+package services
 
 import domain.Category._
 import domain.News

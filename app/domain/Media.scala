@@ -2,7 +2,7 @@ package domain
 
 import play.api.libs.json._
 
-case class Media(name: String,
+final case class Media(name: String,
                  year: String,
                  length: String,
                  imdbScore: Float,

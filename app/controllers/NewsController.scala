@@ -3,7 +3,7 @@ package controllers
 import javax.inject.Inject
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
-import service.NewsService
+import services.NewsService
 
 class NewsController @Inject()(cc: ControllerComponents, newsService: NewsService) extends AbstractController(cc) {
 

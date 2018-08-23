@@ -1,5 +1,4 @@
-import service.{AmazonService, NewsService, RedditService}
-import services.MediaService
+import services._
 
 object Application {
   def main(args: Array[String]): Unit = {
@@ -7,5 +6,6 @@ object Application {
     val newsService = new NewsService
     val amazonService = new AmazonService
     val movieService = new MediaService
+    val songService  = new SongService
   }
 }

@@ -1,6 +1,8 @@
+GET        /song           controllers.SongController.getSongInfo(songName: String)
+
 GET        /media          controllers.MediaController.getMedia(mediaName: String)
 
-GET        /reddit         controllers.RedditController.getComboNews(quantity: Int=5)
+GET        /reddit         controllers.RedditController.getComboNews(quantity: Int=8)
 
 GET        /product        controllers.AmazonController.getSuitableProducts(name: String)
 
