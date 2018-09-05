@@ -1,13 +1,9 @@
 package response
 
-import domain.Song
+import domain.{EmptySongCreator, Song}
 import play.api.libs.json._
 
-final case class SongResponse(status: String, song: Song) {
-
-  def this(response: String) = {
-    this(response, Song("Invalid", "Invalid", "Invalid", List(), List()))
-  }
+final case class SongResponse(status: String, song: Song = EmptySongCreator.create) {
 }
 
 object SongResponse {
