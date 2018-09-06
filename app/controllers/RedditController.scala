@@ -20,6 +20,6 @@ class RedditController @Inject()(cc: ControllerComponents, redditService: Reddit
   }
 
   def getComboNews(quantity: Int) = Action {
-    Ok(Json.prettyPrint(Json.toJson(redditService.getComboNews(quantity))))
+    Ok(Json.prettyPrint(Json.toJson(redditService.getComboPosts(quantity))))
   }
 }

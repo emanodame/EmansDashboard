@@ -2,7 +2,8 @@ package services
 
 import domain.Category._
 import domain.Post
-import scalaj.http.Http
+import response.RedditResponse
+import util.CustomIO
 
 import scala.xml.XML
 
@@ -12,26 +13,37 @@ class RedditService {
   private val csCareerUrl = "https://www.reddit.com/r/cscareerquestions/.rss"
   private val theRedPillUrl = "https://www.reddit.com/r/TheRedPill/.rss"
 
-  def getFrontPagePosts: Seq[Post] = generatePosts(frontPageUrl, Unknown)
+  def getFrontPagePosts: RedditResponse = generateResponse(frontPageUrl, Unknown)
 
-  def getHHHPosts: Seq[Post] = generatePosts(hhhUrl, HHHPost)
+  def getHHHPosts: RedditResponse = generateResponse(hhhUrl, HHHPost)
 
-  def getCsCareerPosts: Seq[Post] = generatePosts(csCareerUrl, CsCareerPost)
+  def getCsCareerPosts: RedditResponse = generateResponse(csCareerUrl, CsCareerPost)
 
-  def getTheRedPillPosts: Seq[Post] = generatePosts(theRedPillUrl, TheRedPillPost)
+  def getTheRedPillPosts: RedditResponse = generateResponse(theRedPillUrl, TheRedPillPost)
 
-  def getComboNews(quantityOfNews: Integer): Seq[Post] = {
-    getHHHPosts.take(quantityOfNews) ++
-      getCsCareerPosts.take(quantityOfNews) ++
-      getTheRedPillPosts.take(quantityOfNews)
+  def getComboPosts(quantityOfPosts: Int): RedditResponse = {
+    RedditResponse("Success",
+      getHHHPosts.posts.take(quantityOfPosts) ++
+        getCsCareerPosts.posts.take(quantityOfPosts) ++
+        getTheRedPillPosts.posts.take(quantityOfPosts))
   }
 
-  private def generatePosts(url: String, category: Category): Seq[Post] = {
-    val hhhContent = Http(url).asString.body
-    (XML.loadString(hhhContent) \ "entry")
-      .map(post => Post(
-        (post \ "title").head.text,
-        (post \\ "link" \\ "@href").head.text,
-        category))
+  private def generateResponse(url: String, category: Category): RedditResponse = {
+    generatePosts(url, category) match {
+      case Left(errorInfo) => RedditResponse(errorInfo)
+      case Right(posts) => RedditResponse("Success!", posts)
+    }
+  }
+
+  private def generatePosts(url: String, category: Category): Either[String, List[Post]] = {
+    val redditIoMonad = CustomIO.getHtmlFromWebsiteViaHttp(url)
+    redditIoMonad.attempt
+      .unsafeRunSync()
+      .fold(_ => Left("Failure; Check network connectivity"),
+        redditContent => Right((XML.loadString(redditContent) \ "entry")
+          .map(post => Post(
+            (post \ "title").head.text,
+            (post \\ "link" \\ "@href").head.text,
+            category)).toList))
   }
 }

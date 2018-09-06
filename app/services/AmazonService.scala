@@ -1,8 +1,10 @@
 package services
 
 import domain.AmazonProduct
-import net.ruippeixotog.scalascraper.browser.{Browser, JsoupBrowser}
+import net.ruippeixotog.scalascraper.browser.Browser
 import net.ruippeixotog.scalascraper.model.ElementQuery
+import response.AmazonResponse
+import util.CustomIO
 
 class AmazonService {
   private val amountOfProductsToRetrieve = 9
@@ -14,30 +16,44 @@ class AmazonService {
   private val numberOfRatingsHtmlClass = "[href*=customerReviews]"
   private val primeHtmlClass = ".a-icon-prime"
 
-  def getSuitableProducts(productName: String, maxPrice: Double = Double.MaxValue): Seq[AmazonProduct] = {
+  def getSuitableProducts(productName: String, maxPrice: Double = Double.MaxValue): AmazonResponse = {
     val productsFromAmazon = getProductsFromAmazon(productName)
-    applyFilterOnProducts(productsFromAmazon, maxPrice)
+
+    productsFromAmazon match {
+      case Left(errorInfo) => AmazonResponse(errorInfo)
+      case Right(products) => AmazonResponse("Success: ", sortAndFilterProducts(products, maxPrice))
+    }
   }
 
-  private def getProductsFromAmazon(productName: String): List[AmazonProduct] = {
+  private def sortAndFilterProducts(products: List[AmazonProduct], maxPrice: Double): List[AmazonProduct] = {
+    val filteredProducts = applyPricePrimeFilteringOnProducts(products, maxPrice)
+    sortProductsByReviews(filteredProducts)
+  }
+
+  private def getProductsFromAmazon(productName: String): Either[String, List[AmazonProduct]] = {
     val productSearchLink = searchLink + productName
-    val retrievedHtmlProducts = JsoupBrowser().get(productSearchLink).body
+    val amazonIoMonad = CustomIO.getHtmlFromWebsiteViaJsoup(productSearchLink)
 
-    (0 to amountOfProductsToRetrieve)
-      .filter(index => assertValidProduct(retrievedHtmlProducts.select("#result_" + index)))
-      .map(item => {
+    amazonIoMonad.attempt
+      .unsafeRunSync()
+      .fold(_ => Left("Failure; Check network connectivity"),
+        retrievedHtmlProducts => Right(
 
-        val product = retrievedHtmlProducts.select("#result_" + item)
+          (0 to amountOfProductsToRetrieve)
+            .filter(index => assertValidProduct(retrievedHtmlProducts.select("#result_" + index)))
+            .map(item => {
 
-        createProductObject(
-          productName = product.select(productTitleHtmlClass).head.attr("title"),
-          link = product.select(productLinkHtmlClass).head.attr("href"),
-          price = product.select(productPriceHtmlClass).head.text,
-          rating = product.select(productRatingHtmlClass).head.text,
-          numberOfRatings = product.select(numberOfRatingsHtmlClass).head.text,
-          prime = product.select(primeHtmlClass).head.select("[aria-label]").nonEmpty)
+              val product = retrievedHtmlProducts.select("#result_" + item)
 
-      }).toList
+              createProductObject(
+                productName = product.select(productTitleHtmlClass).head.attr("title"),
+                link = product.select(productLinkHtmlClass).head.attr("href"),
+                price = product.select(productPriceHtmlClass).head.text,
+                rating = product.select(productRatingHtmlClass).head.text,
+                numberOfRatings = product.select(numberOfRatingsHtmlClass).head.text,
+                prime = product.select(primeHtmlClass).head.select("[aria-label]").nonEmpty)
+
+            }).toList))
   }
 
   private def assertValidProduct(selectedProduct: ElementQuery[Browser#DocumentType#ElementType]): Boolean = {
@@ -65,9 +81,8 @@ class AmazonService {
       prime = prime)
   }
 
-  private def applyFilterOnProducts(amazonProducts: List[AmazonProduct], maxPrice: Double): List[AmazonProduct] = {
-    val productsAfterPricePrimeFilter = amazonProducts.filter(_.price <= maxPrice).filter(_.prime)
-    sortProductsByReviews(productsAfterPricePrimeFilter)
+  private def applyPricePrimeFilteringOnProducts(amazonProducts: List[AmazonProduct], maxPrice: Double): List[AmazonProduct] = {
+    amazonProducts.filter(_.price <= maxPrice).filter(_.prime)
   }
 
   private def sortProductsByReviews(products: List[AmazonProduct]): List[AmazonProduct] = {

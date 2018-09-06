@@ -24,11 +24,11 @@ final class SongService {
   private def retrieveSongId(songName: String): Either[String, JsValue] = {
     val searchLink = generateSearchLink(songName)
 
-    val geniusStringResponse = CustomIO.getHtmlFromWebsiteViaHttp(searchLink, apiKey)
-    geniusStringResponse.attempt
+    val geniusIoMonad = CustomIO.getHtmlFromWebsiteViaHttp(searchLink, apiKey)
+    geniusIoMonad.attempt
       .unsafeRunSync()
       .fold(_ => Left("Failure; Check network connectivity"),
-        retrievedJson => parseJsonForSongId(retrievedJson))
+        geniusJsonResponse => parseJsonForSongId(geniusJsonResponse))
   }
 
   private def parseJsonForSongId(retrievedJson: String): Either[String, JsValue] = {

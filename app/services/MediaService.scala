@@ -1,24 +1,34 @@
 package services
 
 import domain.Media
+import util.CustomIO
 import play.api.libs.json._
-import scalaj.http.Http
+import response.MediaResponse
 
 class MediaService {
   private val searchLink = "http://www.omdbapi.com/?apikey=1c6af724&t="
   private val minImdbScore = 7
   private val minMetacriticScore = 65
 
-  def determineIfWatchable(mediaName: String): Map[Boolean, Media] = {
+  def determineIfWatchable(mediaName: String): MediaResponse = {
     val mediaObject = getMediaObject(mediaName)
-    val determineIfWatchable = (mediaObject.imdbScore >= minImdbScore) && (mediaObject.metaScore >= minMetacriticScore)
-    Map(determineIfWatchable -> mediaObject)
+
+    mediaObject match {
+      case Left(errorInfo) => MediaResponse(errorInfo)
+      case Right(media) =>
+        val determineIfWatchable = (media.imdbScore >= minImdbScore) && (media.metaScore >= minMetacriticScore)
+        MediaResponse("Success", Map(determineIfWatchable -> media))
+    }
   }
 
-  private def getMediaObject(mediaName: String): Media = {
+  private def getMediaObject(mediaName: String): Either[String, Media] = {
     val formattedMediaName = mediaName.replace(' ', '+')
-    val retrievedStringJson = Http(searchLink + formattedMediaName).asString.body
-    createMediaObject(retrievedStringJson)
+    val mediaIoMonad = CustomIO.getHtmlFromWebsiteViaHttp(searchLink + formattedMediaName)
+
+    mediaIoMonad.attempt
+      .unsafeRunSync()
+      .fold(_ => Left("Failure; Check network connectivity"),
+        retrievedMediaHtml => Right(createMediaObject(retrievedMediaHtml)))
   }
 
   private def createMediaObject(retrievedJsonString: String): Media = {
@@ -41,7 +51,9 @@ class MediaService {
 
   private def retrieveMetaScore(metaScore: Option[JsValue]): Int = {
     metaScore match {
-      case Some(i) => i.toString.replace("\"", "").toInt
+      case Some(i) =>
+        val score = i.toString().replace("\"", "")
+        if (score.forall(_.isDigit)) score.toInt else 0
       case None => 0
     }
   }

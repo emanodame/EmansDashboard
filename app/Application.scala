@@ -8,6 +8,7 @@ object Application {
     val movieService = new MediaService
     val songService  = new SongService
 
-    songService.getSongInfo("The Hills")
+//    songService.getSongInfo("Kitchen cudi")
+    movieService.determineIfWatchable("Game of Thrones")
   }
 }
