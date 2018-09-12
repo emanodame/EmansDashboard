@@ -7,7 +7,7 @@ import services.AmazonService
 
 class AmazonController @Inject()(cc: ControllerComponents, amazonService: AmazonService) extends AbstractController(cc) {
 
-  def getSuitableProducts(name: String) = Action {
-    Ok(Json.prettyPrint(Json.toJson(amazonService.getSuitableProducts(name))))
+  def getSuitableProducts(name: String, price: Double) = Action {
+    Ok(Json.prettyPrint(Json.toJson(amazonService.getSuitableProducts(name, price))))
   }
 }

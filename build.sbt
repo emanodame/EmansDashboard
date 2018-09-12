@@ -21,3 +21,6 @@ libraryDependencies += "org.scalaj" %% "scalaj-http" % "2.3.0"
 libraryDependencies += "com.typesafe" % "config" % "1.3.2"
 libraryDependencies += "net.ruippeixotog" %% "scala-scraper" % "2.1.0"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "1.0.0-RC3"
+libraryDependencies ++= Seq(
+  ehcache
+)

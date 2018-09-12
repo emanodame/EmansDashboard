@@ -7,7 +7,7 @@ import response.AmazonResponse
 import util.CustomIO
 
 class AmazonService {
-  private val amountOfProductsToRetrieve = 9
+  private val amountOfProductsToRetrieve = 500
   private val searchLink = "https://www.amazon.co.uk/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords="
   private val productTitleHtmlClass = "[title]"
   private val productLinkHtmlClass = ".a-text-normal"

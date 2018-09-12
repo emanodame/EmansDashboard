@@ -1,23 +1,32 @@
 package services
 
 import domain.Song
+import javax.inject.Inject
+import play.api.cache.SyncCacheApi
 import util.CustomIO
 import play.api.libs.json.{Json, _}
 import response.SongResponse
 
-final class SongService {
+final class SongService @Inject()(cache: SyncCacheApi) {
   private val apiKey = "V4BQYEA_PgtWJW3SV7_G9qiV2yOA4WbwKGBVoPl5ROCL4SFWFvGzYQccLtpU6Hro"
   private val apiSearchLink = "https://api.genius.com/search?q="
 
   def getSongInfo(songName: String): SongResponse = {
-    val songId = retrieveSongId(songName)
+    cache.get[Song](songName) match {
 
-    songId match {
-      case Left(errorInfo) => SongResponse(errorInfo)
-      case Right(retrievedSongId) => retrieveSong(retrievedSongId) match {
-        case Left(errorInfo) => SongResponse(errorInfo)
-        case Right(song) => SongResponse("Success! ", createSongObject(song))
-      }
+      case Some(song) => SongResponse("Successful Cache!", song)
+      case None =>
+        retrieveSongId(songName) match {
+
+          case Left(errorInfo) => SongResponse(errorInfo)
+          case Right(retrievedSongId) => retrieveSong(retrievedSongId) match {
+
+            case Left(errorInfo) => SongResponse(errorInfo)
+            case Right(song) =>
+              cache.set(songName, createSongObject(song))
+              SongResponse("Success! ", createSongObject(song))
+          }
+        }
     }
   }
 
