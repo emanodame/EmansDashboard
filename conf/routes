@@ -13,4 +13,3 @@ GET        /world          controllers.NewsController.getWorldsNews
 GET        /uk             controllers.NewsController.getUkNews
 GET        /tech           controllers.NewsController.getTechNews
 GET        /news           controllers.NewsController.getComboNews(quantity: Int=10)
-d
